@@ -1,0 +1,1130 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>社会・歴史　年号・時代分け特訓ツール</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@500;700;800&family=Zen+Kaku+Gothic+New:wght@400;500;700;900&display=swap');
+
+:root{
+  --paper:#f2ead9;
+  --paper-deep:#e8dcc0;
+  --ink:#282420;
+  --ink-soft:#5a5248;
+  --ai:#1f3a5f;
+  --ai-deep:#14263f;
+  --shu:#bb4430;
+  --shu-deep:#8f3222;
+  --gold:#b8923a;
+  --line:#c9bb98;
+  --white:#fffaf0;
+  --good:#3f7a4a;
+  --good-bg:#eaf5ec;
+  --good-line:#6fa578;
+}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+body{
+  background:var(--paper);
+  background-image:
+    radial-gradient(circle at 15% 8%, rgba(184,146,58,0.10), transparent 40%),
+    radial-gradient(circle at 85% 92%, rgba(31,58,95,0.08), transparent 45%);
+  color:var(--ink);
+  font-family:'Zen Kaku Gothic New', sans-serif;
+  min-height:100vh;
+  padding:18px 14px 60px;
+}
+.wrap{max-width:760px;margin:0 auto;}
+
+header.top{text-align:center;padding:18px 10px 22px;position:relative;}
+header.top::after{content:"";display:block;width:120px;height:3px;margin:14px auto 0;background:linear-gradient(90deg, transparent, var(--gold), transparent);}
+h1{font-family:'Shippori Mincho', serif;font-weight:800;font-size:clamp(24px,6vw,34px);margin:0;color:var(--ai-deep);letter-spacing:.04em;}
+h1 span{color:var(--shu);}
+
+nav.tabs{display:flex;gap:6px;flex-wrap:wrap;justify-content:center;margin-bottom:20px;}
+nav.tabs button{font-family:'Zen Kaku Gothic New', sans-serif;font-weight:700;font-size:12px;padding:9px 12px;border-radius:999px;border:1.5px solid var(--line);background:var(--white);color:var(--ink-soft);cursor:pointer;transition:all .15s ease;}
+nav.tabs button:hover{border-color:var(--gold);}
+nav.tabs button.active{background:var(--ai-deep);border-color:var(--ai-deep);color:var(--paper);}
+
+.panel{display:none;background:var(--white);border:1px solid var(--line);border-radius:16px;padding:22px 20px 24px;box-shadow:0 2px 0 var(--line), 0 10px 24px -14px rgba(40,36,32,.35);animation:fadeIn .25s ease;}
+.panel.active{display:block;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(4px);}to{opacity:1;transform:translateY(0);}}
+
+.panel h2{font-family:'Shippori Mincho', serif;font-size:19px;color:var(--ai-deep);margin:0 0 4px;display:flex;align-items:center;gap:8px;}
+.panel h2 .num{display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:50%;background:var(--shu);color:var(--white);font-size:12px;font-weight:900;font-family:'Zen Kaku Gothic New';flex-shrink:0;}
+.panel .desc{font-size:12.5px;color:var(--ink-soft);margin:0 0 18px;line-height:1.6;padding-bottom:14px;border-bottom:1px dashed var(--line);}
+
+.btn{font-family:'Zen Kaku Gothic New';font-weight:700;font-size:13.5px;padding:11px 18px;border-radius:10px;border:none;cursor:pointer;transition:transform .12s ease, box-shadow .12s ease;}
+.btn:active{transform:scale(.97);}
+.btn-primary{background:var(--ai-deep);color:var(--paper);}
+.btn-primary:hover{box-shadow:0 4px 12px -4px rgba(20,38,63,.5);}
+.btn-shu{background:var(--shu);color:var(--white);}
+.btn-shu:hover{box-shadow:0 4px 12px -4px rgba(187,68,48,.5);}
+.btn-ghost{background:transparent;border:1.5px solid var(--line);color:var(--ink-soft);}
+.btn-ghost:hover{border-color:var(--gold);}
+.btn-sm{font-size:11.5px;padding:6px 11px;border-radius:7px;}
+.btn:disabled{opacity:.4;cursor:not-allowed;}
+.btn-wide{width:100%;text-align:center;}
+
+.setup-view{padding:6px 0 4px;}
+.setup-label{font-size:12.5px;font-weight:700;color:var(--ai-deep);margin-bottom:10px;}
+.era-grid{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:20px;}
+.era-btn{font-family:'Zen Kaku Gothic New';font-size:12px;font-weight:700;padding:8px 12px;border-radius:999px;border:1.5px solid var(--line);background:var(--paper);color:var(--ink-soft);cursor:pointer;transition:all .15s ease;}
+.era-btn:hover{border-color:var(--gold);}
+.era-btn.active{border-color:var(--shu);background:#fdf0ec;color:var(--shu-deep);}
+.era-btn.disabled{opacity:.4;cursor:not-allowed;}
+.result-erabadge{display:inline-block;font-size:11px;font-weight:700;background:var(--paper);border:1px solid var(--line);border-radius:999px;padding:4px 12px;margin-bottom:16px;color:var(--ink-soft);}
+.era-select{font-family:'Zen Kaku Gothic New';font-size:12.5px;padding:8px 10px;border:1.5px solid var(--line);border-radius:9px;background:var(--paper);color:var(--ink);}
+.tag-era{display:inline-block;font-size:9.5px;font-weight:700;background:var(--ai);color:var(--white);padding:1px 6px;border-radius:5px;margin-left:6px;vertical-align:2px;}
+
+.quiz-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;gap:10px;}
+.progress-wrap{flex:1;}
+.progress-track{height:7px;border-radius:99px;background:var(--paper-deep);overflow:hidden;}
+.progress-fill{height:100%;background:linear-gradient(90deg, var(--gold), var(--shu));border-radius:99px;transition:width .3s ease;}
+.progress-txt{font-size:11px;color:var(--ink-soft);margin-top:5px;}
+.score-pill{flex-shrink:0;background:var(--ai-deep);color:var(--paper);font-weight:800;font-size:12.5px;padding:6px 12px;border-radius:999px;white-space:nowrap;}
+
+.stim-desc{font-size:13.5px;line-height:1.6;color:var(--ink);}
+
+.order-instructions{font-size:12.5px;color:var(--ink-soft);margin-bottom:12px;background:var(--paper);padding:8px 12px;border-radius:8px;border:1px dashed var(--line);}
+.card-grid{display:grid;gap:10px;margin-bottom:16px;}
+.event-card{position:relative;border:1.5px solid var(--line);border-radius:12px;padding:13px 14px 13px 46px;background:var(--paper);cursor:pointer;transition:all .15s ease;}
+.event-card:hover{border-color:var(--gold);background:var(--white);}
+.event-card .badge{position:absolute;left:10px;top:14px;width:26px;height:26px;border-radius:50%;background:var(--white);border:1.5px solid var(--line);display:flex;align-items:center;justify-content:center;font-weight:900;font-size:13px;color:var(--ink-soft);}
+.event-card.picked{border-color:var(--ai-deep);background:#eaf0f7;}
+.event-card.picked .badge{background:var(--ai-deep);border-color:var(--ai-deep);color:var(--white);}
+.event-card .reveal{margin-top:8px;padding-top:8px;border-top:1px dashed var(--line);display:none;}
+.event-card.answered .reveal{display:block;}
+.event-card .reveal .yr{font-family:'Shippori Mincho';font-weight:800;color:var(--shu-deep);font-size:12.5px;}
+.event-card .reveal .nm{font-weight:700;font-size:12.5px;margin-top:2px;}
+
+.timeline{margin:6px 0 16px;}
+.tl-slot{display:flex;align-items:center;gap:8px;padding:6px 0;}
+.tl-btn{flex-shrink:0;width:100%;border:1.5px dashed var(--gold);background:#fdf7ea;color:var(--shu-deep);font-weight:700;font-size:12px;padding:9px;border-radius:9px;cursor:pointer;transition:all .15s ease;}
+.tl-btn:hover{background:var(--gold);color:var(--white);}
+.tl-btn.chosen{background:var(--shu);color:var(--white);border-style:solid;border-color:var(--shu);}
+.tl-btn:disabled{cursor:default;}
+.tl-item{border:1.5px solid var(--line);border-radius:10px;padding:11px 13px;background:var(--paper);}
+.tl-item .stim-desc{font-size:12.5px;}
+.tl-item .reveal{display:none;margin-top:7px;padding-top:7px;border-top:1px dashed var(--line);}
+.tl-item.answered .reveal{display:block;}
+.tl-item .reveal .yr{font-family:'Shippori Mincho';font-weight:800;color:var(--ai-deep);font-size:12px;}
+.tl-item .reveal .nm{font-weight:700;font-size:12px;margin-top:1px;}
+.target-box{background:linear-gradient(135deg, #fdf7ea, #f7ecd3);border:1.5px solid var(--gold);border-radius:12px;padding:14px 16px;margin-bottom:16px;}
+.target-box .lbl{font-size:11px;font-weight:700;color:var(--shu-deep);letter-spacing:.1em;margin-bottom:6px;}
+.target-box .reveal{display:none;margin-top:9px;padding-top:9px;border-top:1px dashed var(--gold);}
+.target-box.answered .reveal{display:block;}
+.target-box .reveal .yr{font-family:'Shippori Mincho';font-weight:900;color:var(--shu-deep);font-size:14px;}
+.target-box .reveal .nm{font-weight:800;font-size:13px;margin-top:2px;color:var(--ai-deep);}
+
+.result-box{margin-top:14px;padding:14px 16px;border-radius:12px;font-size:13.5px;line-height:1.7;display:none;}
+.result-box.show{display:block;animation:fadeIn .25s ease;}
+.result-box.correct{background:var(--good-bg);border:1.5px solid var(--good-line);color:#2c5233;}
+.result-box.wrong{background:#fbeceb;border:1.5px solid var(--shu);color:var(--shu-deep);}
+.result-box.info{background:#eaf0f7;border:1.5px solid var(--ai);color:var(--ai-deep);}
+.result-box .title{font-weight:900;font-size:14.5px;margin-bottom:2px;}
+
+.actions-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:6px;}
+
+.result-view{text-align:center;padding:20px 6px 4px;}
+.result-big{font-family:'Shippori Mincho';font-weight:900;font-size:52px;color:var(--ai-deep);line-height:1;margin:6px 0;}
+.result-big span{font-size:24px;color:var(--ink-soft);font-family:'Zen Kaku Gothic New';}
+.result-pct{font-size:14px;font-weight:700;color:var(--shu-deep);margin-bottom:6px;}
+.result-msg{font-size:13px;color:var(--ink-soft);margin-bottom:22px;}
+
+.field{margin-bottom:14px;}
+.field label{display:block;font-size:12.5px;font-weight:700;color:var(--ai-deep);margin-bottom:5px;}
+.field input, .field textarea, .field select{width:100%;font-family:'Zen Kaku Gothic New';font-size:14px;padding:10px 12px;border:1.5px solid var(--line);border-radius:9px;background:var(--paper);color:var(--ink);}
+.field input:focus, .field textarea:focus, .field select:focus{outline:none;border-color:var(--ai-deep);background:var(--white);}
+.field textarea{resize:vertical;min-height:64px;font-family:inherit;}
+.field .hint{font-size:11px;color:var(--ink-soft);margin-top:4px;}
+.save-msg{font-size:12.5px;font-weight:700;color:#2c5233;background:var(--good-bg);border:1.5px solid var(--good-line);padding:9px 12px;border-radius:8px;margin-top:12px;display:none;line-height:1.6;}
+.save-msg.show{display:block;animation:fadeIn .25s ease;}
+.save-msg.save-msg-warn{color:var(--shu-deep);background:#fbeceb;border-color:var(--shu);}
+
+.list-controls{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;}
+.list-controls input{flex:1;min-width:160px;font-family:'Zen Kaku Gothic New';font-size:13.5px;padding:9px 12px;border:1.5px solid var(--line);border-radius:9px;background:var(--paper);color:var(--ink);}
+.list-controls input:focus{outline:none;border-color:var(--ai-deep);}
+.list-controls .btn-sm{flex-shrink:0;}
+.add-panel{background:linear-gradient(135deg, #fdf7ea, #f7ecd3);border:1.5px solid var(--gold);border-radius:12px;padding:16px;margin-bottom:16px;}
+.add-panel .field{margin-bottom:12px;}
+.event-count{font-size:11.5px;color:var(--ink-soft);margin-bottom:10px;}
+.list-scroll{max-height:560px;overflow-y:auto;padding-right:4px;}
+.list-row{display:flex;align-items:flex-start;gap:10px;padding:10px 4px;border-bottom:1px solid var(--line);}
+.list-row .yr{flex-shrink:0;width:58px;font-family:'Shippori Mincho';font-weight:800;color:var(--ai-deep);font-size:13px;padding-top:1px;}
+.list-row .body{flex:1;min-width:0;}
+.list-row .nm{font-weight:700;font-size:13.5px;}
+.list-row .ds{font-size:11.5px;color:var(--ink-soft);margin-top:2px;line-height:1.5;}
+.list-row .row-btns{flex-shrink:0;display:flex;flex-direction:column;gap:5px;}
+.tag-user{display:inline-block;font-size:9.5px;font-weight:700;background:var(--shu);color:var(--white);padding:1px 6px;border-radius:5px;margin-left:6px;vertical-align:2px;}
+.del-btn{flex-shrink:0;background:none;border:none;color:var(--ink-soft);cursor:pointer;font-size:15px;padding:2px 4px;line-height:1;}
+.del-btn:hover{color:var(--shu);}
+.edit-panel{background:var(--paper);border:1.5px solid var(--gold);border-radius:11px;padding:14px;margin:6px 0;width:100%;}
+.edit-panel .field{margin-bottom:10px;}
+.edit-panel .field label{font-size:11.5px;}
+.edit-panel .field input, .edit-panel .field textarea{font-size:13px;padding:8px 10px;}
+
+.loading{text-align:center;padding:40px 0;color:var(--ink-soft);font-size:13px;}
+.hidden{display:none !important;}
+
+/* Flashcard */
+.flash-controls{display:flex;justify-content:flex-end;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:16px;}
+.quiz-restart-row{display:flex;justify-content:flex-end;margin-bottom:10px;}
+.flash-progress{text-align:center;font-size:12px;color:var(--ink-soft);margin-bottom:10px;}
+.flash-card{
+  min-height:220px;
+  border:1.5px solid var(--gold);
+  border-radius:16px;
+  background:linear-gradient(135deg, #fdf7ea, #f7ecd3);
+  padding:26px 22px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+  cursor:pointer;
+  box-shadow:0 3px 0 var(--gold), 0 12px 24px -16px rgba(40,36,32,.4);
+}
+.flash-face{width:100%;}
+.flash-front .fname{font-family:'Shippori Mincho';font-weight:800;font-size:20px;color:var(--ai-deep);line-height:1.5;}
+.flash-front .ftap{margin-top:14px;font-size:11.5px;color:var(--ink-soft);}
+.flash-back .byr{font-family:'Shippori Mincho';font-weight:900;font-size:24px;color:var(--shu-deep);}
+.flash-back .bnm{font-weight:800;font-size:16px;color:var(--ai-deep);margin-top:6px;}
+.flash-back .bds{font-size:12.5px;color:var(--ink-soft);margin-top:10px;line-height:1.6;}
+.flash-nav{justify-content:center;margin-top:16px;}
+
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="top">
+  <h1>社会・歴史　<span>年号・時代分け</span>特訓ツール</h1>
+</header>
+
+<nav class="tabs">
+  <button class="tab-btn active" data-tab="flash">🗂 フラッシュカード</button>
+  <button class="tab-btn" data-tab="order">① 並べかえ</button>
+  <button class="tab-btn" data-tab="position">② 位置あて</button>
+  <button class="tab-btn" data-tab="list">年表を見る</button>
+</nav>
+
+<!-- FLASHCARD -->
+<section class="panel active" id="panel-flash">
+  <h2><span class="num">🗂</span>フラッシュカード</h2>
+  <p class="desc">スコアなしの気軽な暗記モードです。カードをタップすると裏返り、年号・名前・詳しい説明が確認できます。</p>
+
+  <div class="flash-controls">
+    <select class="era-select" id="flash-era-select">
+      <option value="all">すべての時代</option>
+      <option value="yayoi">弥生時代</option>
+      <option value="kofun">古墳時代</option>
+      <option value="asuka">飛鳥時代</option>
+      <option value="nara">奈良時代</option>
+      <option value="heian">平安時代</option>
+      <option value="kamakura">鎌倉時代</option>
+      <option value="nanbokucho">南北朝時代</option>
+      <option value="muromachi">室町時代</option>
+      <option value="azuchimomoyama">安土桃山時代</option>
+      <option value="edo">江戸時代</option>
+      <option value="meiji">明治時代</option>
+      <option value="taisho">大正時代</option>
+      <option value="showa">昭和時代</option>
+      <option value="heisei">平成時代以降</option>
+    </select>
+    <button class="btn btn-ghost btn-sm" id="flash-shuffle">🔀 シャッフルして最初から</button>
+  </div>
+
+  <div id="flash-area">
+    <div class="flash-progress" id="flash-progress"></div>
+    <div class="flash-card" id="flash-card">
+      <div class="flash-face flash-front" id="flash-front"></div>
+      <div class="flash-face flash-back hidden" id="flash-back"></div>
+    </div>
+    <div class="actions-row flash-nav">
+      <button class="btn btn-ghost" id="flash-prev">← 前へ</button>
+      <button class="btn btn-shu" id="flash-flip">カードをめくる</button>
+      <button class="btn btn-ghost" id="flash-next">次へ →</button>
+    </div>
+  </div>
+</section>
+
+<!-- MODE 1: ORDERING -->
+<section class="panel" id="panel-order">
+  <h2><span class="num">1</span>4つの出来事を年代順に</h2>
+  <p class="desc">出来事の「説明文」だけを読んで、起きた順（古い→新しい）に並べかえよう。名前や年号は表示されません。全10問。</p>
+
+  <div class="setup-view" id="order-setup">
+    <div class="setup-label">出題する時代を選んでください</div>
+    <div class="era-grid" id="order-era-grid"></div>
+    <button class="btn btn-shu btn-wide" id="order-start">スタートする</button>
+  </div>
+
+  <div class="hidden" id="order-quiz">
+    <div class="quiz-restart-row">
+      <button class="btn btn-ghost btn-sm" id="order-quiz-restart">⏪ 最初（時代選び）からやり直す</button>
+    </div>
+    <div class="quiz-head">
+      <div class="progress-wrap">
+        <div class="progress-track"><div class="progress-fill" id="order-progress-fill"></div></div>
+        <div class="progress-txt" id="order-progress-txt"></div>
+      </div>
+      <div class="score-pill" id="order-score-pill"></div>
+    </div>
+    <div class="order-instructions">💡 古いと思う出来事から順にカードをタップしてください（1→2→3→4）</div>
+    <div class="card-grid" id="order-cards"></div>
+    <div class="actions-row">
+      <button class="btn btn-primary" id="order-check">答え合わせ</button>
+      <button class="btn btn-ghost" id="order-reset">選び直す</button>
+      <button class="btn btn-shu hidden" id="order-next">次の問題へ</button>
+    </div>
+    <div class="result-box" id="order-result"></div>
+  </div>
+
+  <div class="hidden" id="order-result-view">
+    <div class="result-view">
+      <div class="result-erabadge" id="order-final-era"></div>
+      <div class="result-big" id="order-final-score">0<span>/10</span></div>
+      <div class="result-pct" id="order-final-pct"></div>
+      <div class="result-msg" id="order-final-msg"></div>
+      <div class="actions-row" style="justify-content:center;">
+        <button class="btn btn-shu" id="order-retry-same">もう一度挑戦する</button>
+        <button class="btn btn-ghost" id="order-change-era">時代を選び直す</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- MODE 2: POSITION -->
+<section class="panel" id="panel-position">
+  <h2><span class="num">2</span>この出来事はどこに入る？</h2>
+  <p class="desc">「説明文」だけをヒントに、年代順にならんだ出来事の中の正しい位置を当てよう。全10問。</p>
+
+  <div class="setup-view" id="pos-setup">
+    <div class="setup-label">出題する時代を選んでください</div>
+    <div class="era-grid" id="pos-era-grid"></div>
+    <button class="btn btn-shu btn-wide" id="pos-start">スタートする</button>
+  </div>
+
+  <div class="hidden" id="pos-quiz">
+    <div class="quiz-restart-row">
+      <button class="btn btn-ghost btn-sm" id="pos-quiz-restart">⏪ 最初（時代選び）からやり直す</button>
+    </div>
+    <div class="quiz-head">
+      <div class="progress-wrap">
+        <div class="progress-track"><div class="progress-fill" id="pos-progress-fill"></div></div>
+        <div class="progress-txt" id="pos-progress-txt"></div>
+      </div>
+      <div class="score-pill" id="pos-score-pill"></div>
+    </div>
+    <div class="target-box" id="pos-target-box">
+      <div class="lbl">この出来事はどこに入る？</div>
+      <div class="stim-desc" id="pos-target-desc"></div>
+      <div class="reveal" id="pos-target-reveal"></div>
+    </div>
+    <div class="timeline" id="pos-timeline"></div>
+    <div class="actions-row">
+      <button class="btn btn-shu hidden" id="pos-next">次の問題へ</button>
+    </div>
+    <div class="result-box" id="pos-result"></div>
+  </div>
+
+  <div class="hidden" id="pos-result-view">
+    <div class="result-view">
+      <div class="result-erabadge" id="pos-final-era"></div>
+      <div class="result-big" id="pos-final-score">0<span>/10</span></div>
+      <div class="result-pct" id="pos-final-pct"></div>
+      <div class="result-msg" id="pos-final-msg"></div>
+      <div class="actions-row" style="justify-content:center;">
+        <button class="btn btn-shu" id="pos-retry-same">もう一度挑戦する</button>
+        <button class="btn btn-ghost" id="pos-change-era">時代を選び直す</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- LIST (view / add / edit / delete) -->
+<section class="panel" id="panel-list">
+  <h2><span class="num">≡</span>年表一覧</h2>
+  <p class="desc">登録されているすべての出来事です。新しい年号の追加、内容の編集、不要な年号の削除がここでできます。</p>
+  <div class="list-controls">
+    <input type="text" id="list-search" placeholder="出来事の名前で検索…">
+    <button class="btn btn-shu btn-sm" id="add-toggle-btn">＋ 新しい年号を追加</button>
+  </div>
+  <div id="add-panel-slot"></div>
+  <div class="event-count" id="list-count"></div>
+  <div class="list-scroll" id="list-scroll"></div>
+</section>
+
+</div>
+
+<script>
+const SEED_EVENTS = [{"year": "紀元前1世紀ごろ", "name": "『漢書』地理志", "desc": "その書物には、「楽浪郡の沖の海の中に倭人が住んでおり、100余りの国に分かれている。彼らは定期的に使者を送って貢ぎ物を届けているという」というような記載があった。"}, {"year": "57年", "name": "倭の奴国王の朝貢（金印授与、『後漢書』東夷伝）", "desc": "倭の奴国の使者が後漢へ渡り、光武帝から「漢委奴国王」と刻まれた金印を授かった。"}, {"year": "239年", "name": "卑弥呼が魏に遣使（親魏倭王の称号授与）", "desc": "邪馬台国の女王・卑弥呼が帯方郡を通じて魏へ使いを送り、皇帝から「親魏倭王」の金印や銅鏡100枚などを授かった。"}, {"year": "478年", "name": "倭王武の上表文（宋への遣使）", "desc": "5世紀後半、大和政権の大王であった倭王武は、中国の南朝・宋に使者を送って手紙を差し出し、朝鮮半島南部における軍事的な指揮権を認める称号を求めた。この記録は中国の歴史書『宋書』倭国伝に残っている。"}, {"year": "538年", "name": "仏教伝来", "desc": "百済の聖明王から欽明天皇へ、仏像や経典が贈られて日本に仏教が公式に伝わった。"}, {"year": "593年", "name": "聖徳太子が摂政に就任", "desc": "推古天皇の即位にともない、その甥にあたる聖徳太子（厩戸王）が摂政に就任した。蘇我馬子と協力しながら、天皇を中心とする中央集権的な国家体制の確立を目指して政治改革を推進した。"}, {"year": "603年", "name": "冠位十二階の制定", "desc": "推古天皇のもとで聖徳太子（厩戸王）と蘇我馬子が、家柄にとらわれず個人の才能や功績に応じて役人の位階を与える制度を定めた。"}, {"year": "604年", "name": "十七条の憲法の制定", "desc": "聖徳太子（厩戸王）が政治を行う役人の心構えや道徳的な規範を定めた。"}, {"year": "607年", "name": "遣隋使の派遣", "desc": "聖徳太子（厩戸王）が小野妹子らを中国の隋へ遣隋使として派遣した。"}, {"year": "645年", "name": "大化の改新", "desc": "中大兄皇子と中臣鎌足らが、独裁的な政治を行っていた蘇我入鹿を宮中で倒し、その父の蘇我蝦夷を自害に追い込んだ。"}, {"year": "663年", "name": "白村江の戦い", "desc": "日本が滅亡した百済を復興させるため朝鮮半島へ救援の大軍を派遣したが、唐・新羅の連合軍に白村江で大敗した。"}, {"year": "672年", "name": "壬申の乱", "desc": "天智天皇の死後、その跡継ぎを巡って弟の大海人皇子と息子の大友皇子が激しく激突した。"}, {"year": "701年", "name": "大宝律令の完成", "desc": "文武天皇のもとで刑部親王や藤原不比等らが、刑罰の定めである「律」と政治の仕組みである「令」を整えた本格的な法律体系を完成させた。"}, {"year": "710年", "name": "平城京への遷都", "desc": "元明天皇が都を藤原京から奈良の平城京へ移した。"}, {"year": "723年", "name": "三世一身の法", "desc": "律令体制のもとで人口が増加し、公地公民制に基づく「口分田」が不足したため、開墾を奨励する目的で作られた。新しく用水路を引いて開墾した土地は「3代（本人・子・孫）」まで、古い用水路を修復して開墾した土地は「本人1代」に限って私有を認めた。"}, {"year": "743年", "name": "墾田永年私財法の制定", "desc": "聖武天皇が人口増加に伴う開墾意欲の低下や口分田不足を解消するため、新しく耕作した土地の永久私有を認める法を発令した。"}, {"year": "794年", "name": "平安京への遷都", "desc": "桓武天皇が乱れた政治を立て直し、仏教勢力（奈良の寺院）の影響力を脱するため、都を山城国（京都）へ移した。"}, {"year": "804年", "name": "新仏教の伝来", "desc": "最澄と空海はともに遣唐使船で唐へ渡り、最新の仏教を学んで帰国後、新しい山岳仏教・密教を開いた。"}, {"year": "894年", "name": "遣唐使の廃止", "desc": "菅原道真の建議により、約200年間続いていた遣唐使の派遣を取りやめた。"}, {"year": "935年", "name": "平将門の乱", "desc": "伯父である平国香との一族間での領地や婚姻を巡る対立から、平将門が常陸国で挙兵して国香を討ち取った。"}, {"year": "939年", "name": "承平・天慶の乱（平将門の乱・藤原純友の乱）", "desc": "関東で平将門が、瀬戸内海で藤原純友がほぼ同時に挙兵し、平安京の朝廷を震撼させた。いずれの反乱も数年のうちに鎮圧された。"}, {"year": "1016年", "name": "藤原道長が摂政に就任", "desc": "藤原道長が幼い後一条天皇の即位に伴い摂政に就任した。"}, {"year": "1083年", "name": "後三年の役", "desc": "出羽・陸奥の豪族・清原氏の内紛に陸奥守として赴任した源義家が介入し、藤原清衡（清原清衡）を助けて清原氏を滅ぼした。"}, {"year": "1086年", "name": "白河上皇の院政開始", "desc": "白河天皇がわずか8歳の幼少である善仁親王（堀河天皇）へ譲位し、自らは「上皇」となって皇居の外（院）から政治を行い始めた。"}, {"year": "1156年", "name": "保元の乱", "desc": "崇徳上皇と後白河天皇の対立に平清盛・源義朝らが加わり、武士が表舞台に立つきっかけとなった。"}, {"year": "1159年", "name": "平治の乱", "desc": "源義朝が平清盛に敗れ、平氏が政権を握る決定的なきっかけとなった。"}, {"year": "1167年", "name": "平清盛が太政大臣に就任", "desc": "武士として初めて政治の最高位に就き、日宋貿易などを進めて平氏の全盛期を築いた。"}, {"year": "1185年", "name": "壇ノ浦の戦い", "desc": "源義経の活躍により山口県沖の壇ノ浦で平氏が滅亡した"}, {"year": "1185年", "name": "守護・地頭の設置", "desc": "源頼朝が後白河法皇から許可を得て、国ごとに軍事・警察を担当する守護を、荘園や公領ごとには年貢の徴収や土地管理を行う地頭を置く権利を獲得した。"}, {"year": "1192年", "name": "源頼朝が征夷大将軍に就任", "desc": "源頼朝が朝廷から征夷大将軍に任命され、名実ともに鎌倉幕府を開いた。"}, {"year": "1221年", "name": "承久の乱", "desc": "後鳥羽上皇が朝廷の実権を取り戻すため、西国の武士や僧兵を呼び集めて鎌倉幕府（執権・北条義時）に対して挙兵した。"}, {"year": "1232年", "name": "御成敗式目の制定", "desc": "鎌倉幕府の第3代執権・北条泰時が、武士の社会の慣習や道理をもとに51箇条からなる裁判の基準を制定した。"}, {"year": "1274年", "name": "文永の役", "desc": "モンゴル帝国（元）の皇帝フビライ＝ハン率いる元・高麗の連合軍が、九州北部の博多湾に襲来した。"}, {"year": "1281年", "name": "弘安の役", "desc": "1回目の元寇の失敗を受けた元のフビライ＝ハンが、東路軍と江南軍を合わせた約14万人の大軍で再び博多湾へ攻め寄せた。"}, {"year": "1297年", "name": "永仁の徳政令", "desc": "北条貞時が困窮した御家人を救済するため、借金の帳消しや質入れ・売却した領地の無償取り戻しを命じる法律を発令した。"}, {"year": "1333年", "name": "鎌倉幕府の滅亡", "desc": "後醍醐天皇の呼びかけに応じて挙兵した足利高氏が京都の六波羅探題を攻め滅ぼし、新田義貞が鎌倉を攻めて北条氏を自害に追い込んだことで、鎌倉幕府が滅亡した。"}, {"year": "1334年", "name": "建武の新政", "desc": "後醍醐天皇が公家中心の政治体制を本格的に発足させた。公家や公卿を極端に優遇して武士の所領要求を無視したため、全国の武士たちから強い反発を買った。"}, {"year": "1338年", "name": "室町幕府の成立", "desc": "足利尊氏が、光明天皇（北朝）から征夷大将軍に任命されて京都に幕府を開いた。"}, {"year": "1392年", "name": "南北朝の統一", "desc": "室町幕府の第3代将軍・足利義満の仲介により、南朝の後亀山天皇が北朝の後小松天皇へ皇位を譲る形で、約60年間続いていた南北朝の対立が解消された。"}, {"year": "1404年", "name": "日明貿易の開始", "desc": "室町幕府の第3代将軍・足利義満が、明（中国）との間で勘合を用いた正式な貿易を開始した。"}, {"year": "1428年", "name": "正長の土一揆", "desc": "近江国（滋賀県）の馬借（運送業者）らの呼びかけをきっかけに、室町幕府に対して起こった日本史上最初の本格的な土一揆（農民一揆）"}, {"year": "1467年", "name": "応仁の乱", "desc": "将軍の後継争いから細川氏と山名氏が大激突。11年続き、京都が荒廃し戦国時代の幕開けとなった。"}, {"year": "1488年", "name": "加賀の一向一揆", "desc": "加賀国（石川県）で浄土真宗（一向宗）の門徒が結束して挙兵し、対立していた守護大名の富樫政親を討ち取った。その後、約100年間にわたり農民自治を行った。"}, {"year": "1543年", "name": "鉄砲伝来", "desc": "種子島に漂着したポルトガル人によって火縄銃が伝えられた。"}, {"year": "1549年", "name": "キリスト教伝来", "desc": "イエズス会のフランシスコ＝ザビエルが鹿児島に上陸し、キリスト教を布教した。"}, {"year": "1560年", "name": "桶狭間の戦い", "desc": "織田信長が駿河の大名・今川義元を奇襲して討ち取り、全国に名を知らしめた。"}, {"year": "1573年", "name": "室町幕府の滅亡", "desc": "織田信長が第15代将軍の足利義昭を京都から追放し、室町幕府が終わりを迎えた。"}, {"year": "1575年", "name": "長篠の戦い", "desc": "織田信長・徳川家康の連合軍が、鉄砲を組織的に使って武田勝頼の騎馬隊を打ち破った。"}, {"year": "1582年", "name": "本能寺の変", "desc": "天下統一を目前にした織田信長が、家臣の明智光秀に裏切られて京都の本能寺で自害した"}, {"year": "1582年", "name": "太閤検地の開始", "desc": "羽柴秀吉（豊臣秀吉）が、農民の升や単位を統一して年貢の徴収体制を整え、兵農分離へとつながる基盤を築いた。"}, {"year": "1588年", "name": "刀狩令", "desc": "豊臣秀吉が農民から武器を取り上げ、兵農分離を進めて一揆を防ごうとした。"}, {"year": "1590年", "name": "全国統一の完成", "desc": "豊臣秀吉が小田原の北条氏を倒し、応仁の乱以来続いていた戦国時代を終わらせた。"}, {"year": "1592年", "name": "文禄の役", "desc": "天下統一を果たした豊臣秀吉が、明（中国）の征服を目指して朝鮮半島へ大軍を派遣した"}, {"year": "1597年", "name": "慶長の役", "desc": "明（中国）との講和交渉が破談したため、豊臣秀吉が再び朝鮮半島へ約14万人の大軍を再派遣した"}, {"year": "1600年", "name": "関ヶ原の戦い", "desc": "徳川家康（東軍）が石田三成（西軍）らを破り、天下の権力を実質的に握った。"}, {"year": "1603年", "name": "江戸幕府の成立", "desc": "徳川家康が征夷大将軍に任命され、江戸に幕府を開いた。"}, {"year": "1615年", "name": "武家諸法度", "desc": "徳川幕府は「一国一城令」を発令して大名の居城以外の城を破壊させ、大名を統制するための基本的法律を制定して江戸幕府の支配体制を強固に固めた。"}, {"year": "1615年", "name": "大坂夏の陣", "desc": "徳川家康が豊臣秀頼・淀殿母子を自害させ、豊臣氏を完全に滅ぼした。"}, {"year": "1635年", "name": "参勤交代の制度化", "desc": "第3代将軍徳川家光が武家諸法度を改定し、大名に1年おきに江戸と領地を往復することを義務付けた。"}, {"year": "1637年", "name": "島原・天草一揆", "desc": "重税とキリシタン弾圧に抗議し、幼い天草四郎を大将とした大規模一揆が発生した。"}, {"year": "1639年", "name": "ポルトガル船の来航禁止（鎖国）", "desc": "キリスト教の布教を強く警戒した江戸幕府は、貿易の利益よりも禁教を優先してポルトガル船の来航を全面的に禁止した。これにより、幕府が貿易と外交を厳しく統制する「鎖国」体制がほぼ完成した。"}, {"year": "1685年", "name": "生類憐みの令", "desc": "第5代将軍徳川綱吉が動物愛護令を発令した。"}, {"year": "1709年", "name": "正徳の治の開始（1709～1716年）", "desc": "儒学者の新井白石が主導し、徳川綱吉時代の側近政治や貨幣改悪を是正して朱子学に基づく文治政治の確立を目指した幕政改革を行った。"}, {"year": "1716年", "name": "享保の改革", "desc": "第8代将軍徳川吉宗が幕府改革として上米の制、目安箱の設置、公事方御定書などを実施した。"}, {"year": "1732年", "name": "享保のききん", "desc": "三大飢饉の最初に位置づけられ、西日本を中心に甚大な被害を出して江戸初の打ちこわしを招いたほか、徳川吉宗によるサツマイモ栽培奨励の契機となった。"}, {"year": "1772年", "name": "田沼意次の政治", "desc": "側用人田沼意次が株仲間の推奨や銅座の開設など、商人の力を利用した重商主義の政治を行った。"}, {"year": "1782年", "name": "天明のききん", "desc": "東北地方を中心に壊滅的な餓死者を出して全国で打ちこわしを頻発させ、田沼意次の失脚と松平定信による寛政の改革への転換をもたらした。"}, {"year": "1787年", "name": "寛政の改革", "desc": "老中松平定信による改革。朱子学以外の学問を禁じ、質素倹約を強制した。"}, {"year": "1792年", "name": "ラクスマンの根室来航", "desc": "ロシアの女帝エカチェリーナ2世の命を受けた使節ラクスマンが、日本人漂流民を伴って蝦夷地の根室に来航し、日本に対して公式に通商を要求した。"}, {"year": "1825年", "name": "異国船打払令", "desc": "外国船が日本沿岸に接近した場合、理由を問わず砲撃して追い払うことを命じた。"}, {"year": "1833年", "name": "天保のききん", "desc": "江戸の三大飢饉の最後にあたり、東北地方を中心に全国で十数万〜数十万人の死者を出した。"}, {"year": "1837年", "name": "大塩平八郎の乱", "desc": "元大坂町奉行所の役人・大塩平八郎が、天保の大飢饉に苦しむ庶民を救うために挙兵した。"}, {"year": "1837年", "name": "モリソン号事件", "desc": "日本人漂流民を送り届けにきたアメリカの商船モリソン号に対し、江戸幕府が異国船打払令に基づいて浦賀と薩摩で撃退した。"}, {"year": "1839年", "name": "蛮社の獄", "desc": "異国船打払令に基づくモリソン号への砲撃対応を著書で批判した渡辺崋山や高野長英らの蘭学者グループに対し、幕府保守派の鳥居耀蔵らが無断密航の冤罪をでっち上げて一斉検挙・処罰した言論弾圧事件。"}, {"year": "1840年", "name": "アヘン戦争", "desc": "アヘンの密貿易を取り締まる清国にイギリスが軍事侵攻して戦争が勃発し、清の敗北と南京条約による香港割譲や開港のしらせは、幕府や諸藩に強い危機感を与えた。"}, {"year": "1841年", "name": "天保の改革", "desc": "老中水野忠邦による改革。株仲間の解散や人返しの令を行ったが、厳しすぎて失敗した。"}, {"year": "1853年", "name": "黒船来航", "desc": "アメリカのペリー提督が浦賀に来航し、開国を迫った。"}, {"year": "1854年", "name": "日米和親条約", "desc": "ペリーが再び7隻の軍艦を率いて来航し、江戸幕府（老中首座・阿部正弘）と条約を締結した。これにより、下田・箱館を開港し、日本の「鎖国」が約200年ぶりに終わった。"}, {"year": "1858年", "name": "日米修好通商条約", "desc": "江戸幕府の大老・井伊直弼が、孝明天皇の許可を得ないまま、アメリカ総領事ハリスの要求に応じて条約を締結した。これにより、オランダ・ロシア・イギリス・フランスとも同様の条約を結び、正式に貿易を開始した。"}, {"year": "1858年", "name": "安政の大獄", "desc": "江戸幕府の大老・井伊直弼が、幕府の方針に反対する尊王攘夷派の志士・公家・大名らを徹底的に弾圧・処罰した。吉田松陰や橋本左内らが処刑されるなど、100名以上が処罰を受けた。"}, {"year": "1860年", "name": "桜田門外の変", "desc": "安政の大獄で尊王攘夷派を徹底的に弾圧した江戸幕府の大老・井伊直弼が、江戸城の桜田門外で水戸藩・薩摩藩脱藩の志士たちによって暗殺された。"}, {"year": "1862年", "name": "生麦事件", "desc": "薩摩藩主の父・島津久光の行列を騎馬のまま横切ったイギリス人を藩士が殺傷する事件が発生し、薩英戦争へと発展する重大な外交問題となった。"}, {"year": "1866年", "name": "薩長同盟の締結", "desc": "土佐藩脱藩の坂本龍馬や中岡慎太郎の仲介により、京都の薩摩藩邸で薩摩藩の西郷隆盛と長州藩の桂小五郎が秘密軍事同盟を締結した。"}, {"year": "1867年", "name": "大政奉還", "desc": "江戸幕府第15代将軍・徳川慶喜が政権を朝廷に返上した。"}, {"year": "1867年", "name": "王政復古の大号令", "desc": "土佐藩前藩主・山内豊信の建白を受け入れた慶喜は、政権を形式的に返上しつつも新政府で主導権を握ることを狙った。しかし、これに対抗した岩倉具視や薩摩藩・長州藩ら倒幕派は同年末に摂政・関白・幕府の廃止と徳川氏の完全排除を宣言した。"}, {"year": "1868年", "name": "五箇条の御誓文", "desc": "明治天皇が京都御所で天地神明に誓うという形式で明治新政府の国家統治に関する基本方針を発布した。"}, {"year": "1868年", "name": "戊辰戦争", "desc": "京都の「鳥羽・伏見の戦い」を皮切りに、新政府軍と旧幕府軍の間で約1年半にわたる内戦が勃発した。"}, {"year": "1868年", "name": "塾名を「慶應義塾」と命名", "desc": "福沢諭吉は、江戸・鉄砲洲から芝新銭座へ移転させた自らの蘭学・英学塾に、当時の元号にちなんで「慶應義塾」という新しい名前をつけた。"}, {"year": "1869年", "name": "版籍奉還", "desc": "全国の藩主が土地（版）と人民（籍）を朝廷に返上した。薩摩・長州・土佐・肥前の4藩主による申し出を皮切りに全藩主に広がり、旧藩主は「知藩事」に任命されて地方官となった。"}, {"year": "1869年", "name": "五稜郭の戦い", "desc": "蝦夷地にて、旧幕府脱走軍と新政府軍との間で戊辰戦争の最終決戦が行われた。"}, {"year": "1871年", "name": "廃藩置県", "desc": "明治新政府は全国の藩を完全に廃止して府県を置き、中央から知事を派遣する廃藩置県を断行した。これにより、中央集権体制が名実ともに確立された。"}, {"year": "1871年", "name": "岩倉使節団の派遣", "desc": "不平等条約の改正交渉と欧米の進んだ制度・文物の視察を目的に、右大臣・岩倉具視を全権大使とする使節団が欧米へ派遣された。"}, {"year": "1871年", "name": "日清修好条規の締結", "desc": "明治新政府が、日本近代史上初となるアジア諸国との近代的な二国間条約を、大日本帝国と清の間で締結した。"}, {"year": "1872年", "name": "学制の発布", "desc": "明治新政府は日本初の近代的な学校制度を定めた学制を公布し、「邑に不学の戸なく、家に不学の人なからしめん」を目標に全国を学区に分けて国民皆学を目指した。フランスの学校制度を模範とし、6歳以上の男女に就学を義務付けた。"}, {"year": "1872年", "name": "鉄道の開通（新橋〜横浜）", "desc": "日本初の鉄道が開通した。"}, {"year": "1872年", "name": "富岡製糸場の操業開始", "desc": "殖産興業政策の一環としてフランスの技術を取り入れた官営模範工場の富岡製糸場が操業を開始した。"}, {"year": "1873年", "name": "地租改正", "desc": "明治新政府が安定した国家財政の基盤を確立するために全国的な土地制度および税制の近代化改革を断行した。土地の所有者に地券を発行し、地価の3%を現金で納めさせた。"}, {"year": "1873年", "name": "徴兵令", "desc": "明治新政府が近代的な国民軍を創設するために国民皆兵を原則とする兵役制度を発布した。"}, {"year": "1874年", "name": "佐賀の乱", "desc": "明治六年政変（征韓論争）で下野した江藤新平と島義勇らが、佐賀の士族たちを率いて明治新政府に対して日本初の本格的な士族反乱を起こした"}, {"year": "1876年", "name": "日朝修好条規の締結", "desc": "日本は朝鮮との間で軍事的圧力を背景とした不平等条約を締結し、鎖国状態にあった朝鮮を開国させた。"}, {"year": "1877年", "name": "西南戦争", "desc": "鹿児島県の士族が西郷隆盛を総大将に擁立し、明治新政府に対して日本史上最後の士族反乱を起こした。"}, {"year": "1881年", "name": "国会開設の勅諭", "desc": "板垣退助らの民権運動の高まりを受け、明治天皇が10年後に帝国議会を開くことを約束した。"}, {"year": "1882年", "name": "立憲改進党の結成", "desc": "大隈重信がイギリス流の議院内閣制を目指して政党を結成し、早稲田大学の前身となる東京専門学校を開校した。"}, {"year": "1884年", "name": "秩父事件", "desc": "埼玉県秩父地方で生糸価格の暴落と重税・借金に苦しむ農民たちが、自由党員の影響を受けて数千人規模で武装蜂起した事件。"}, {"year": "1885年", "name": "内閣制度の創設", "desc": "太政官制が廃止されて近代的な内閣制度が創設され、長州藩出身の伊藤博文が初代内閣総理大臣に就任した（第1次伊藤博文内閣）。"}, {"year": "1886年", "name": "ノルマントン号事件", "desc": "イギリス船が和歌山県沖で沈没した際、イギリス人船長らが日本人乗客25名全員を見殺しにした事件が発生した"}, {"year": "1889年", "name": "大日本帝国憲法の発布", "desc": "伊藤博文らがドイツ（プロイセン）憲法を手本に起草し、明治天皇が国民へ授けるアジア初の近代的な成文憲法（欽定憲法）として発布した。"}, {"year": "1890年", "name": "第一回衆議院議員総選挙の実施", "desc": "日本初の国会議員選挙（直接国税15円以上納める25歳以上の男子だけに選挙権があった）が実施された。"}, {"year": "1890年", "name": "教育勅語", "desc": "第1次山県有朋内閣のもとで、明治天皇の名により発布された近代日本の教育と国民道徳の基本規範が発布された"}, {"year": "1894年", "name": "不平等条約改正", "desc": "外務大臣・陸奥宗光の外交交渉により、幕末以来の懸案であった不平等条約のうち、領事裁判権（治外法権）の完全撤廃と関税自主権の一部回復に成功し、欧米諸国との条約改正を大きく前進させた。"}, {"year": "1894年", "name": "日清戦争", "desc": "朝鮮半島で起こった農民反乱（甲午農民戦争）を契機に、朝鮮の支配権をめぐって対立していた日本と清（中国）の間で戦争が勃発した。"}, {"year": "1895年", "name": "下関条約", "desc": "日清戦争の勝利を受けて伊藤博文・陸奥宗光と李鴻章の間で講和条約が結ばれ、日本は遼東半島などを獲得したものの、ロシア・ドイツ・フランスによる三国干渉を受け入れて同半島を清へ返還した。"}, {"year": "1900年", "name": "女子英学塾（現・津田塾大学）の創立", "desc": "津田梅子は、東京・麹町に女子英学塾を設立・開校した。この学校はのちに津田塾大学として発展し、現在まで続いている。"}, {"year": "1901年", "name": "八幡製鉄所の操業開始", "desc": "下関条約の賠償金の一部を使って建設された官営製鉄所。北九州の筑豊炭田近くに建てられた。"}, {"year": "1902年", "name": "日英同盟", "desc": "東アジア（満州・朝鮮）への進出を強めるロシアの南下政策に対抗するため、日本とイギリスの間で同盟が締結された。"}, {"year": "1904年", "name": "日露戦争", "desc": "満州と朝鮮半島の支配権をめぐって対立を深めていた日本とロシアの間で戦争が勃発した。"}, {"year": "1905年", "name": "ポーツマス条約", "desc": "日露戦争の講和条約がアメリカ・ポーツマスで締結され、日露戦争が終結した。"}, {"year": "1905年", "name": "日比谷焼打事件", "desc": "小村寿太郎がロシアと講和を結び領土や権益を得たものの賠償金を獲得できなかったため、国民の不満が爆発し、東京では日比谷焼打事件と呼ばれる大規模な暴動が発生した。"}, {"year": "1909年", "name": "伊藤博文暗殺事件", "desc": "初代韓国統監を務めた前首相の伊藤博文が、ロシアの蔵相ココツェフと会談するため訪れた満州のハルビン駅において、朝鮮の民族独立運動家である安重根によって射殺される事件が発生した。"}, {"year": "1910年", "name": "韓国併合", "desc": "大日本帝国は大韓帝国との間に条約を結び、朝鮮半島を自国の領土に組み入れて植民地支配を開始した。"}, {"year": "1911年", "name": "関税自主権の完全回復", "desc": "外務大臣・小村寿太郎がアメリカとの間で日米通商航海条約を改定し、幕末以来の最大の外交課題であった関税自主権を完全に回復することに成功した。"}, {"year": "1914年", "name": "第一次世界大戦", "desc": "サラエボ事件を契機にヨーロッパで世界規模の大戦が勃発すると、日本は日英同盟を理由に連合国側として参戦し、ドイツ領であった中国の青島や太平洋の南洋諸島を占領した。"}, {"year": "1915年", "name": "二十一箇条の要求", "desc": "日本は中華民国の袁世凱大総統に対し、山東半島の旧ドイツ権益の継承や南満州・東部内蒙古における権益拡大などを求める要求を突きつけ、その大部分を認めさせた。"}, {"year": "1917年", "name": "ロシア革命", "desc": "戦争が長期化していたロシアでレーニンの指導による革命が勃発し、世界初となる社会主義政権（ソビエト政権）が誕生した。"}, {"year": "1918年", "name": "米騒動", "desc": "急激な米価高騰に苦しむ富山県の主婦たちによる米の積み出し阻止を機に、安売りなどを求めて全国へ大衆暴動が拡大した。"}, {"year": "1918年", "name": "シベリア出兵", "desc": "ロシア革命によって世界初の社会主義政権が誕生したことを警戒した連合国が、革命への武力干渉と自国の勢力拡大を目的にロシアのシベリアへ軍を派遣した。"}, {"year": "1918年", "name": "原敬の本格的政党内閣成立", "desc": "米騒動を受けて、「平民宰相」と呼ばれた原敬が衆議院第一党の党員を中心に閣僚を構成する日本初の本格的な政党内閣を組織した。"}, {"year": "1919年", "name": "ベルサイユ条約", "desc": "第一次世界大戦の講和会議であるパリ講和会議で条約が結ばれ、五大国の一つとして参加した日本は山東半島の権益や南洋諸島の委任統治権を獲得した。"}, {"year": "1923年", "name": "関東大震災", "desc": "9月1日、首都圏を巨大地震が襲い、火災などにより死者・行方不明者10万人以上の甚大な被害が出た。"}, {"year": "1925年", "name": "普通選挙法の制定", "desc": "加藤高明内閣のもとで、納税額の制限を撤廃して満25歳以上のすべての男子に選挙権を与える普通選挙法が制定された。"}, {"year": "1925年", "name": "治安維持法の制定", "desc": "加藤高明内閣が国体の変革や私有財産制度の否認を目的とする社会主義・共産主義運動を厳しく取り締まるために弾圧立法を制定した。"}, {"year": "1925年", "name": "ラジオ放送の開始", "desc": "東京・芝浦から日本初のラジオ放送が開始され、大衆文化の発展に大きな影響を与えた。"}, {"year": "1929年", "name": "世界恐慌", "desc": "アメリカ・ニューヨークのウォール街で株価が大暴落したことを引き金に、世界中へ連鎖した未曾有の不況が勃発した。"}, {"year": "1931年", "name": "満州事変", "desc": "関東軍が自ら線路を爆破した柳条湖事件を機に満州全土を占領して傀儡国家「満州国」を建国した"}, {"year": "1932年", "name": "五・一五事件", "desc": "海軍の青年将校らが犬養毅首相を暗殺し、大正時代から続いた政党内閣の時代が終わりを迎えた。"}, {"year": "1933年", "name": "日本の国際連盟脱退", "desc": "国際連盟総会で満州国の不承認と日本軍の撤兵を求める勧告案が可決（42対1）されたことを受け、日本政府（斎藤実内閣）は国際連盟を脱退して国際的孤立を深めた。"}, {"year": "1936年", "name": "二・二六事件", "desc": "陸軍の皇道派青年将校らが首相官邸や警視庁などを占拠し、高橋是清蔵相や斎藤実内大臣らを殺害した。"}, {"year": "1937年", "name": "日中戦争", "desc": "北京郊外で起きた日中両軍の発砲事件である盧溝橋事件をきっかけに中国と日本の間で戦争が勃発した。"}, {"year": "1938年", "name": "国家総動員法の制定", "desc": "長期化する日中戦争に対応するため、第1次近衛文麿内閣のもとで政府が議会の承認なしにすべての人的・物的資源を戦争へ動員できる法律が制定された。"}, {"year": "1940年", "name": "日独伊三国同盟の締結", "desc": "第2次近衛文麿内閣のもとで日本はドイツ・イタリアと軍事同盟を締結し、枢軸国陣営を形成してアメリカとの対立を決定的なものにした。"}, {"year": "1940年", "name": "大政翼賛会", "desc": "近衛文麿の提唱した新体制運動のもとで既存の政党がすべて解散し、国を挙げて戦争を遂行する体制をつくるために統制組織が結成された。"}, {"year": "1941年", "name": "太平洋戦争の開戦", "desc": "日本軍がハワイの真珠湾とイギリス領マレー半島を奇襲攻撃したことで戦争が勃発した。"}, {"year": "1941年", "name": "日ソ中立条約の締結", "desc": "南進政策を進める日本が北方の安全を確保し、ソ連側もドイツへの警戒を強める中で、相互の領土保全と中立維持を約束してモスクワで条約を締結した。"}, {"year": "1944年", "name": "サイパン島の陥落", "desc": "絶対国防圏の要衝であったマリアナ諸島のサイパン島が陥落したことにより、米軍が大型爆撃機B29の発着基地を確保し、日本本土のほぼ全域が空襲の射程圏内に入った。"}, {"year": "1945年", "name": "太平洋戦争の終結", "desc": "8月6日に広島、9日に長崎へ原子爆弾が投下され、8月15日に日本はポツダム宣言を受諾して終戦を迎えた。"}, {"year": "1945年", "name": "GHQによる占領と民主化の開始", "desc": "日本はGHQ（連合国軍最高司令官総司令部／マッカーサー）の間接統治下に置かれ、女性参政権の付与、治安維持法の廃止、農地改革、財閥解体など戦後日本の復興・民主化政策が一気に始動した。"}, {"year": "1945年", "name": "東京大空襲", "desc": "米軍のB29爆撃機が東京の市街地へ大規模な焼夷弾攻撃を行い、約10万人の犠牲者を出した。"}, {"year": "1945年", "name": "ソ連対日参戦", "desc": "ソ連（スターリン）は有効期間内であった日ソ中立条約を一方的に破棄し、対日宣戦を布告して満州国境・南樺太・千島列島などへ一斉に軍事侵攻を開始した。"}, {"year": "1946年", "name": "日本国憲法の公布", "desc": "11月3日に、第1次吉田茂内閣のもとで、主権在民・基本的人権の尊重・平和主義の三大原則を掲げる新たな国家体制の基本が定められた。"}, {"year": "1950年", "name": "朝鮮戦争", "desc": "北緯38度線を挟んで北朝鮮が韓国へ侵攻したことで戦争が勃発した。"}, {"year": "1950年", "name": "警察予備隊の創設", "desc": "朝鮮戦争が勃発した際、在日米軍が朝鮮半島へ出動したことによる国内の治安の空白を埋めるため、マッカーサーの指令によって現在の自衛隊の前身となる組織が新設された。"}, {"year": "1951年", "name": "サンフランシスコ平和条約", "desc": "吉田茂首相が全権として、アメリカなど48か国との間で、日本の主権回復と連合国による占領の終了を定めた講和条約を調印した。"}, {"year": "1951年", "name": "日米安全保障条約（旧安保条約）の締結", "desc": "日本がアメリカからの独立後も、アメリカ軍が日本国内に基地を置き駐留し続けることを認めた軍事条約を締結した。"}, {"year": "1954年", "name": "第五福竜丸事件", "desc": "太平洋のビキニ環礁で行われたアメリカの水爆実験により、日本のマグロ漁船が被曝する事件が発生した。"}, {"year": "1954年", "name": "自衛隊の発足", "desc": "防衛庁設置法と自衛隊法の成立により、保安隊が陸・海・空の3部隊からなる自衛隊へ改組・発足し、日本の防衛組織が確立された。"}, {"year": "1956年", "name": "日ソ共同宣言", "desc": "鳩山一郎内閣のもとで日本はソ連との間に共同宣言を調印して戦争状態を終結させ、国交を回復した。"}, {"year": "1956年", "name": "国際連合への加盟", "desc": "ソ連との国交が回復したことで、それまで常任理事国ソ連の拒否権発動により阻まれていた国際連合への加盟が全会一致で実現し、日本は国際社会への完全復帰を果たした。"}, {"year": "1960年", "name": "日米安全保障条約の改定（新安保条約）", "desc": "岸信介内閣がアメリカとの間で、従来の不平等な内容を改めて日米相互防衛義務や事前協議制を明記した条約を調印した。"}, {"year": "1962年", "name": "キューバ危機", "desc": "ソ連がアメリカの喉元である社会主義国キューバに核ミサイル基地を建設していることが発覚し、アメリカのケネディ大統領が海上封鎖を実施したことで、米ソによる全面核戦争の一歩手前まで緊張が高まった。"}, {"year": "1964年", "name": "東京オリンピック／東海道新幹線開通", "desc": "アジアで初めてとなる、この年の夏季大会が東京で開かれ、開幕直前には東京〜新大阪間を結ぶ高速鉄道が新たに開通した。"}, {"year": "1972年", "name": "沖縄復帰", "desc": "佐藤栄作内閣のもとで沖縄の施政権がアメリカから日本へ返還された。"}, {"year": "1972年", "name": "日中共同声明の発表（日中国交正常化）", "desc": "田中角栄内閣が北京を電撃訪問して周恩来首相・毛沢東主席と会談し、日中共同声明を発表して中国との国交を正式に回復させた。"}, {"year": "1973年", "name": "第一次オイルショック", "desc": "第4次中東戦争の勃発を機にアラブ石油輸出国機構（OAPEC）が原油価格の大幅引き上げと生産削減を実施した。"}, {"year": "1985年", "name": "プラザ合意", "desc": "先進5カ国（G5）がアメリカの貿易赤字是正を目的に為替介入によるドル安誘導を決定した合意により、急激な円高による不況対策として行われた金融緩和がその後のバブル経済の引き金となった。"}, {"year": "1989年", "name": "平成への改元", "desc": "昭和天皇が崩御したことで64年間にわたる昭和が幕を閉じ、翌1月8日から元号が「平成」へと改元された。"}, {"year": "1989年", "name": "消費税の導入（3%）", "desc": "竹下登内閣のもとで税制改革の一環として、税率3%の消費税が初めて導入され、年末には日経平均株価が史上最高値（3万8915円）を記録してバブル経済が頂点を極めた。"}, {"year": "1989年", "name": "ベルリンの壁崩壊/マルタ会談/冷戦の終結", "desc": "東西分断の象徴だったベルリンの壁の崩壊を受けて翌年のドイツ再統一への道が開かれ、年末のマルタ会談では米ソ首脳が冷戦の終結を公式に宣言した。"}, {"year": "1991年", "name": "湾岸戦争", "desc": "クウェートに侵攻したイラク軍を排除するためアメリカを中心とする多国籍軍が反撃を開始した戦争が勃発した。"}, {"year": "1991年", "name": "ソビエト連邦の解体", "desc": "ソ連のゴルバチョフ大統領が辞任してモスクワのクレムリンからソ連国旗が降ろされ、ソビエト連邦が解体されたことで、約70年続いた世界初の社会主義国家が消滅し、第二次世界大戦後から続いた米ソ冷戦構造が完全に終結した。"}, {"year": "1991年", "name": "牛肉・オレンジの輸入自由化", "desc": "長年続いた日米貿易摩擦を緩和するため、日本は牛肉とオレンジの輸入自由化を実施した。"}, {"year": "1995年", "name": "阪神・淡路大震災", "desc": "兵庫県南部を震源とするマグニチュード7.3の直下型地震が発生し、神戸市などを中心に6400名を超える犠牲者と甚大な都市壊滅被害をもたらした。"}, {"year": "2001年", "name": "アメリカ同時多発テロ事件", "desc": "国際テロ組織アルカイダによってハイジャックされた旅客機がニューヨークの世界貿易センタービルや国防総省（ペンタゴン）に突入するテロ事件が発生し、世界に甚大な衝撃を与えた。"}, {"year": "2003年", "name": "イラク戦争の勃発", "desc": "アメリカとイギリスなどは、フセイン政権が大量破壊兵器を保有・隠蔽している疑いがあるとして、国連安保理の明確な武力行使容認決議がないまま軍事作戦を開始した。"}, {"year": "2008年", "name": "リーマン・ショック", "desc": "アメリカの大手投資銀行が経営破綻したことを引き金に、世界規模で信用収縮と株価暴落が連鎖した世界金融危機が発生した。"}, {"year": "2011年", "name": "東日本大震災", "desc": "三陸沖を震源とする国内観測史上最大規模（マグニチュード9.0、最大震度7）の東北地方太平洋沖地震が発生した。福島第一原子力発電所事故も引き起こした。"}, {"year": "2019年", "name": "令和への改元", "desc": "天皇陛下の譲位に伴い、徳仁さまが新天皇に即位され「令和」へ改元された。"}];
+const STORAGE_KEY = 'nengo:events:v2';
+// Bump this whenever SEED_EVENTS is re-embedded with a newer snapshot of the
+// timeline. It only affects the browser-local fallback path below (see
+// EFFECTIVE_STORAGE_KEY) — it never touches window.storage, so syncing via a
+// published Claude artifact + account login is unaffected.
+const SEED_BUILD = 'b176-20260927e';
+const TOTAL_Q = 10;
+
+// Fixed spread/step values controlling how close together in time the events
+// within one question are (previously tied to a removed difficulty setting).
+// The era selector narrows the candidate pool first; these values then decide
+// how questions are picked from within that pool.
+const ORDER_SPREAD = 6;
+const POS_STEP = 1;
+
+let EVENTS = [];
+
+function toHalfWidthDigits(s){
+  return String(s).replace(/[０-９]/g, c => String.fromCharCode(c.charCodeAt(0) - 0xFEE0));
+}
+// Detects "N世紀" / "紀元前N世紀" style approximate-year entries.
+// Placement rule: an "Nth century" entry is treated as landing at the very end
+// of its hundred-year block, e.g. 6世紀ごろ -> 599 (end of the 500s),
+// 紀元前3世紀ごろ -> -201 (end / most-recent edge of the 3rd century BC).
+function parseCenturyApprox(raw){
+  const s = toHalfWidthDigits(raw).trim();
+  const m = s.match(/^(紀元前)?\s*(\d+)\s*世紀/);
+  if(!m) return null;
+  const n = parseInt(m[2], 10);
+  if(!n || n < 0) return null;
+  const isBC = !!m[1];
+  const yearApprox = isBC ? (99 - n*100) : (n*100 - 1);
+  const suffixMatch = s.match(/^(?:紀元前)?\s*\d+\s*世紀\s*(.*)$/);
+  const suffix = (suffixMatch && suffixMatch[1].trim()) ? suffixMatch[1].trim() : 'ごろ';
+  return { isBC, n, yearApprox, label: `${isBC ? '紀元前' : ''}${n}世紀${suffix}` };
+}
+function parseYear(y){
+  const c = parseCenturyApprox(y);
+  if(c) return c.yearApprox;
+  const m = toHalfWidthDigits(y).match(/-?\d+/);
+  return m ? parseInt(m[0], 10) : 0;
+}
+function normalizeYearLabel(y){
+  const c = parseCenturyApprox(y);
+  if(c) return c.label;
+  let s = toHalfWidthDigits(y).trim();
+  if(!s.endsWith('年')) s = s + '年';
+  return s;
+}
+// Chronological Japanese-history periods, each defined by the last year
+// (inclusive) it covers. A year is assigned to the first period whose
+// "until" it does not exceed. The last period has no upper bound.
+const ERAS = [
+  { id:'yayoi',          name:'弥生時代',     until: 299 },
+  { id:'kofun',          name:'古墳時代',     until: 592 },
+  { id:'asuka',          name:'飛鳥時代',     until: 709 },
+  { id:'nara',           name:'奈良時代',     until: 793 },
+  { id:'heian',          name:'平安時代',     until: 1185 },
+  { id:'kamakura',       name:'鎌倉時代',     until: 1333 },
+  { id:'nanbokucho',     name:'南北朝時代',   until: 1392 },
+  { id:'muromachi',      name:'室町時代',     until: 1573 },
+  { id:'azuchimomoyama', name:'安土桃山時代', until: 1602 },
+  { id:'edo',            name:'江戸時代',     until: 1867 },
+  { id:'meiji',          name:'明治時代',     until: 1912 },
+  { id:'taisho',         name:'大正時代',     until: 1926 },
+  { id:'showa',          name:'昭和時代',     until: 1988 },
+  { id:'heisei',         name:'平成時代以降', until: Infinity },
+];
+function eraOf(yearLabel){
+  const y = parseYear(yearLabel);
+  for(const era of ERAS){ if(y <= era.until) return era; }
+  return ERAS[ERAS.length-1];
+}
+function eraName(id){
+  if(id==='all') return 'すべての時代';
+  return (ERAS.find(e=>e.id===id)||{}).name || id;
+}
+function eventsInEra(eraId){
+  return eraId==='all' ? EVENTS : EVENTS.filter(e=>eraOf(e.year).id===eraId);
+}
+function distinctYearCount(eraId){
+  return new Set(eventsInEra(eraId).map(e=>parseYear(e.year))).size;
+}
+// Renders an "all eras" + 14-era button grid into containerId. Buttons whose
+// era doesn't have enough distinct years for the quiz mode (minDistinctYears)
+// are shown disabled rather than hidden, so it's clear the era exists but has
+// too little data yet. onSelect(eraId) is called when an enabled button is clicked.
+function buildEraGrid(containerId, currentEra, minDistinctYears, onSelect){
+  const wrap = document.getElementById(containerId);
+  if(!wrap) return;
+  wrap.innerHTML = '';
+  const options = [{id:'all', name:'すべての時代'}, ...ERAS];
+  options.forEach(opt=>{
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'era-btn';
+    btn.textContent = opt.name;
+    const disabled = distinctYearCount(opt.id) < minDistinctYears;
+    if(disabled) btn.classList.add('disabled');
+    if(opt.id === currentEra) btn.classList.add('active');
+    if(!disabled){
+      btn.addEventListener('click', ()=>onSelect(opt.id));
+    }
+    wrap.appendChild(btn);
+  });
+}
+
+function escapeHtml(s){
+  return String(s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+function shuffle(arr){
+  const a = [...arr];
+  for(let i=a.length-1;i>0;i--){
+    const j = Math.floor(Math.random()*(i+1));
+    [a[i],a[j]]=[a[j],a[i]];
+  }
+  return a;
+}
+function sortedEvents(){
+  return [...EVENTS].sort((a,b)=>parseYear(a.year)-parseYear(b.year));
+}
+
+// window.storage is only available while this page runs inside Claude's artifact
+// viewer. When the file is downloaded and opened directly in a browser, it does
+// not exist, so we fall back to localStorage in that case.
+const HAS_CLAUDE_STORAGE = (typeof window.storage !== 'undefined' && window.storage !== null);
+const STORAGE_TIMEOUT_MS = 4000;
+
+// When opened inside Claude, window.storage is scoped to this specific
+// published artifact + account, so the plain STORAGE_KEY is safe to reuse
+// forever (that's how in-app edits keep syncing across devices).
+// When downloaded and opened directly in a browser, localStorage is scoped
+// to the file:// origin, which is SHARED by every local HTML file ever
+// opened in that browser — so data left over from an older copy of this file
+// (e.g. an earlier export with fewer events) would otherwise "leak" into a
+// newer one and hide the up-to-date SEED_EVENTS. Folding SEED_BUILD into the
+// key used for that fallback path means a newer file always starts from its
+// own embedded data instead of an older browser-local leftover.
+const EFFECTIVE_STORAGE_KEY = HAS_CLAUDE_STORAGE ? STORAGE_KEY : (STORAGE_KEY + ':' + SEED_BUILD);
+
+function withTimeout(promise, ms, fallbackValue){
+  return new Promise((resolve)=>{
+    let done = false;
+    const timer = setTimeout(()=>{ if(!done){ done = true; resolve(fallbackValue); } }, ms);
+    promise.then(v=>{ if(!done){ done = true; clearTimeout(timer); resolve(v); } })
+           .catch(()=>{ if(!done){ done = true; clearTimeout(timer); resolve(fallbackValue); } });
+  });
+}
+
+function storageWarningText(){
+  return HAS_CLAUDE_STORAGE
+    ? '保存領域への書き込みに失敗しました。少し時間をおいてから、もう一度お試しください。'
+    : '保存領域への書き込みに失敗しました。ブラウザの設定（プライベートブラウズモードなど）や空き容量をご確認のうえ、もう一度お試しください。';
+}
+
+async function storageGetValue(key){
+  if(HAS_CLAUDE_STORAGE){
+    const res = await withTimeout(window.storage.get(key, false), STORAGE_TIMEOUT_MS, null);
+    return (res && res.value) ? res.value : null;
+  }
+  try{ return localStorage.getItem(key); }catch(e){ return null; }
+}
+async function storageSetValue(key, value){
+  // Always keep a same-tab safety copy first, so data survives even if the
+  // Claude storage call hangs or fails silently (e.g. unpublished artifact).
+  try{ sessionStorage.setItem(key, value); }catch(e){ /* ignore */ }
+  if(HAS_CLAUDE_STORAGE){
+    const ok = await withTimeout(
+      window.storage.set(key, value, false).then(()=>true),
+      STORAGE_TIMEOUT_MS,
+      false
+    );
+    return ok;
+  }
+  try{ localStorage.setItem(key, value); return true; }
+  catch(e){ console.error('保存に失敗しました', e); return false; }
+}
+
+async function loadEvents(){
+  const raw = await storageGetValue(EFFECTIVE_STORAGE_KEY);
+  if(raw){
+    try{
+      EVENTS = JSON.parse(raw);
+      return;
+    }catch(e){ /* corrupt, fall through to reseed */ }
+  }
+  // If Claude storage timed out / has nothing yet, check this tab's safety copy
+  // before reseeding, so a page refresh in the same tab never loses data.
+  try{
+    const sessionRaw = sessionStorage.getItem(EFFECTIVE_STORAGE_KEY);
+    if(sessionRaw){
+      EVENTS = JSON.parse(sessionRaw);
+      return;
+    }
+  }catch(e){ /* ignore */ }
+  EVENTS = SEED_EVENTS.map(e => ({...e, src:'seed'}));
+  await saveEvents();
+}
+async function saveEvents(){
+  return await storageSetValue(EFFECTIVE_STORAGE_KEY, JSON.stringify(EVENTS));
+}
+
+function groupByYear(all){
+  const byYear = new Map();
+  all.forEach(e=>{
+    const y = parseYear(e.year);
+    if(!byYear.has(y)) byYear.set(y, []);
+    byYear.get(y).push(e);
+  });
+  return byYear;
+}
+function pickRep(events){
+  if(events.length===1) return events[0];
+  return events[Math.floor(Math.random()*events.length)];
+}
+
+// Picks n events with n distinct years (so e.g. two 1945-nen events never appear
+// in the same question), biased toward years close together within `spread`.
+function pickCloseGroup(n, spread, eraId){
+  const all = sortedEvents().filter(e => eraId==='all' || !eraId || eraOf(e.year).id===eraId);
+  const byYear = groupByYear(all);
+  const distinctYears = [...byYear.keys()].sort((a,b)=>a-b);
+  const dLen = distinctYears.length;
+  if(dLen <= n){
+    return shuffle(distinctYears.map(y=>pickRep(byYear.get(y)))).slice(0, dLen);
+  }
+  const half = Math.max(Math.floor(spread/2), n-1);
+  const anchorIdx = Math.floor(Math.random()*dLen);
+  let lo = Math.max(0, anchorIdx-half);
+  let hi = Math.min(dLen-1, anchorIdx+half);
+  while(hi-lo+1 < n){
+    if(lo>0) lo--; else if(hi<dLen-1) hi++; else break;
+  }
+  const windowYears = distinctYears.slice(lo, hi+1);
+  return shuffle(windowYears).slice(0, n).map(y=>pickRep(byYear.get(y)));
+}
+
+// Same distinct-year guarantee for the position-quiz's 5-event group.
+function pickPositionGroup(step, eraId){
+  const all = sortedEvents().filter(e => eraId==='all' || !eraId || eraOf(e.year).id===eraId);
+  const byYear = groupByYear(all);
+  const distinctYears = [...byYear.keys()].sort((a,b)=>a-b);
+  const dLen = distinctYears.length;
+  const n = 5;
+  if(dLen <= n){
+    return distinctYears.map(y=>pickRep(byYear.get(y)));
+  }
+  const maxStart = dLen - 1 - step*(n-1);
+  const start = maxStart>0 ? Math.floor(Math.random()*(maxStart+1)) : 0;
+  const idxs = [];
+  for(let i=0;i<n;i++){ let idx = start + i*step; if(idx > dLen-1) idx = dLen-1; idxs.push(idx); }
+  const uniq = [...new Set(idxs)];
+  while(uniq.length < Math.min(n,dLen)){
+    const cand = Math.floor(Math.random()*dLen);
+    if(!uniq.includes(cand)) uniq.push(cand);
+  }
+  uniq.sort((a,b)=>a-b);
+  return uniq.map(i=> pickRep(byYear.get(distinctYears[i])));
+}
+
+document.querySelectorAll('.tab-btn').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+    document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('panel-'+btn.dataset.tab).classList.add('active');
+    if(btn.dataset.tab==='list'){ editingEvent=null; renderList(); }
+    if(btn.dataset.tab==='flash'){ buildFlashDeck(); renderFlashCard(); }
+  });
+});
+
+function resultMsg(pct){
+  if(pct>=90) return 'すばらしい！ほぼ完璧です。';
+  if(pct>=70) return 'よくできました。もう少しで満点です。';
+  if(pct>=50) return 'まずまず。近い年代の出来事を復習しよう。';
+  return '苦手な時代をもう一度見直してみよう。';
+}
+
+/* =====================================================
+   MODE 1: ORDERING
+===================================================== */
+let orderSession = null;
+let orderEra = 'all';
+function renderOrderEraGrid(){
+  buildEraGrid('order-era-grid', orderEra, 4, (id)=>{ orderEra = id; renderOrderEraGrid(); });
+}
+function showOrderView(view){
+  document.getElementById('order-setup').classList.toggle('hidden', view!=='setup');
+  document.getElementById('order-quiz').classList.toggle('hidden', view!=='quiz');
+  document.getElementById('order-result-view').classList.toggle('hidden', view!=='result');
+}
+function startOrderSession(){
+  orderSession = { index:0, score:0, usedCombos: new Set(), era: orderEra };
+  showOrderView('quiz');
+  nextOrderQuestion();
+}
+async function nextOrderQuestion(){
+  if(orderSession.index >= TOTAL_Q){ finishOrderSession(); return; }
+  orderSession.index++;
+  if(distinctYearCount(orderSession.era) < 4){
+    document.getElementById('order-cards').innerHTML = `<div class="loading">「${escapeHtml(eraName(orderSession.era))}」の出来事が4件未満です。「＋追加」から登録するか、他の時代を選んでください。</div>`;
+    return;
+  }
+  let chosen, key;
+  for(let attempt=0; attempt<30; attempt++){
+    chosen = pickCloseGroup(4, ORDER_SPREAD, orderSession.era);
+    key = chosen.map(e=>e.name).sort().join('|');
+    if(!orderSession.usedCombos.has(key)) break;
+  }
+  orderSession.usedCombos.add(key);
+  orderSession.picks = [];
+  orderSession.answered = false;
+  orderSession.pool = shuffle(chosen);
+  updateOrderHead();
+  document.getElementById('order-result').classList.remove('show','correct','wrong');
+  document.getElementById('order-check').classList.remove('hidden');
+  document.getElementById('order-reset').classList.remove('hidden');
+  document.getElementById('order-next').classList.add('hidden');
+  renderOrderCards();
+}
+function updateOrderHead(){
+  const pct = Math.round(((orderSession.index-1)/TOTAL_Q)*100);
+  document.getElementById('order-progress-fill').style.width = pct + '%';
+  document.getElementById('order-progress-txt').textContent = `問題 ${orderSession.index} / ${TOTAL_Q}`;
+  document.getElementById('order-score-pill').textContent = `正解 ${orderSession.score}`;
+}
+function renderOrderCards(){
+  const wrap = document.getElementById('order-cards');
+  wrap.innerHTML = '';
+  orderSession.pool.forEach((ev, idx)=>{
+    const pickIdx = orderSession.picks.indexOf(idx);
+    const card = document.createElement('div');
+    card.className = 'event-card' + (pickIdx>-1 ? ' picked':'') + (orderSession.answered ? ' answered':'');
+    card.innerHTML = `
+      <div class="badge">${pickIdx>-1 ? (pickIdx+1) : ''}</div>
+      <div class="stim-desc">${escapeHtml(ev.desc || ev.name)}</div>
+      <div class="reveal"><div class="yr">${escapeHtml(normalizeYearLabel(ev.year))}</div><div class="nm">${escapeHtml(ev.name)}</div></div>
+    `;
+    if(!orderSession.answered){
+      card.addEventListener('click', ()=>{
+        if(orderSession.picks.includes(idx)) orderSession.picks = orderSession.picks.filter(i=>i!==idx);
+        else if(orderSession.picks.length < 4) orderSession.picks.push(idx);
+        renderOrderCards();
+      });
+    }
+    wrap.appendChild(card);
+  });
+}
+document.getElementById('order-check').addEventListener('click', ()=>{
+  if(!orderSession || !orderSession.pool) return;
+  if(orderSession.picks.length < 4){
+    const box = document.getElementById('order-result');
+    box.classList.add('show');
+    box.classList.remove('correct');
+    box.classList.add('wrong');
+    box.innerHTML = `<div class="title">4つすべてタップしてください</div><div>並び順を決めるには4枚すべてを選ぶ必要があります。</div>`;
+    return;
+  }
+  orderSession.answered = true;
+  const pool = orderSession.pool;
+  const correctOrderIdx = pool.map((e,i)=>i).sort((a,b)=>parseYear(pool[a].year)-parseYear(pool[b].year));
+  const isCorrect = JSON.stringify(orderSession.picks) === JSON.stringify(correctOrderIdx);
+  if(isCorrect) orderSession.score++;
+  renderOrderCards();
+  updateOrderHead();
+  const box = document.getElementById('order-result');
+  box.classList.add('show');
+  box.classList.toggle('correct', isCorrect);
+  box.classList.toggle('wrong', !isCorrect);
+  const correctLine = correctOrderIdx.map(i=>`${normalizeYearLabel(pool[i].year)} ${pool[i].name}`).join('　→　');
+  box.innerHTML = `<div class="title">${isCorrect ? '🎉 正解！' : '❌ 不正解'}</div><div>正しい順番：${correctLine}</div>`;
+  document.getElementById('order-check').classList.add('hidden');
+  document.getElementById('order-reset').classList.add('hidden');
+  document.getElementById('order-next').classList.remove('hidden');
+});
+document.getElementById('order-reset').addEventListener('click', ()=>{
+  if(!orderSession || !orderSession.pool) return;
+  orderSession.picks = [];
+  document.getElementById('order-result').classList.remove('show','correct','wrong');
+  renderOrderCards();
+});
+document.getElementById('order-next').addEventListener('click', nextOrderQuestion);
+function finishOrderSession(){
+  showOrderView('result');
+  const score = orderSession.score, pct = Math.round((score/TOTAL_Q)*100);
+  document.getElementById('order-final-era').textContent = `時代：${eraName(orderSession.era)}`;
+  document.getElementById('order-final-score').innerHTML = `${score}<span>/${TOTAL_Q}</span>`;
+  document.getElementById('order-final-pct').textContent = `正答率 ${pct}%`;
+  document.getElementById('order-final-msg').textContent = resultMsg(pct);
+}
+document.getElementById('order-start').addEventListener('click', startOrderSession);
+document.getElementById('order-retry-same').addEventListener('click', startOrderSession);
+document.getElementById('order-change-era').addEventListener('click', ()=>{
+  renderOrderEraGrid();
+  showOrderView('setup');
+});
+document.getElementById('order-quiz-restart').addEventListener('click', ()=>{
+  orderSession = null;
+  renderOrderEraGrid();
+  showOrderView('setup');
+});
+
+/* =====================================================
+   MODE 2: POSITION
+===================================================== */
+let posSession = null;
+let posEra = 'all';
+function renderPosEraGrid(){
+  buildEraGrid('pos-era-grid', posEra, 5, (id)=>{ posEra = id; renderPosEraGrid(); });
+}
+function showPosView(view){
+  document.getElementById('pos-setup').classList.toggle('hidden', view!=='setup');
+  document.getElementById('pos-quiz').classList.toggle('hidden', view!=='quiz');
+  document.getElementById('pos-result-view').classList.toggle('hidden', view!=='result');
+}
+function startPosSession(){
+  posSession = { index:0, score:0, usedTargets: new Set(), era: posEra };
+  showPosView('quiz');
+  nextPosQuestion();
+}
+async function nextPosQuestion(){
+  if(posSession.index >= TOTAL_Q){ finishPosSession(); return; }
+  posSession.index++;
+  if(distinctYearCount(posSession.era) < 5){
+    document.getElementById('pos-timeline').innerHTML = `<div class="loading">「${escapeHtml(eraName(posSession.era))}」の出来事が5件未満です。「＋追加」から登録するか、他の時代を選んでください。</div>`;
+    return;
+  }
+  let group, targetPos, target;
+  for(let attempt=0; attempt<30; attempt++){
+    group = pickPositionGroup(POS_STEP, posSession.era);
+    targetPos = Math.floor(Math.random()*group.length);
+    target = group[targetPos];
+    if(!posSession.usedTargets.has(target)) break;
+  }
+  posSession.usedTargets.add(target);
+  posSession.correctIdx = targetPos;
+  posSession.answered = false;
+  posSession.target = target;
+  posSession.sorted = group.filter((_,i)=>i!==targetPos);
+  updatePosHead();
+  document.getElementById('pos-result').classList.remove('show','correct','wrong');
+  document.getElementById('pos-next').classList.add('hidden');
+  const tb = document.getElementById('pos-target-box');
+  tb.classList.remove('answered');
+  document.getElementById('pos-target-desc').textContent = posSession.target.desc || posSession.target.name;
+  document.getElementById('pos-target-reveal').innerHTML = `<div class="yr">${escapeHtml(normalizeYearLabel(posSession.target.year))}</div><div class="nm">${escapeHtml(posSession.target.name)}</div>`;
+  renderPositionTimeline();
+}
+function updatePosHead(){
+  const pct = Math.round(((posSession.index-1)/TOTAL_Q)*100);
+  document.getElementById('pos-progress-fill').style.width = pct + '%';
+  document.getElementById('pos-progress-txt').textContent = `問題 ${posSession.index} / ${TOTAL_Q}`;
+  document.getElementById('pos-score-pill').textContent = `正解 ${posSession.score}`;
+}
+function renderPositionTimeline(){
+  const wrap = document.getElementById('pos-timeline');
+  wrap.innerHTML = '';
+  const addSlot = (slotIdx)=>{
+    const slot = document.createElement('div');
+    slot.className = 'tl-slot';
+    const b = document.createElement('button');
+    b.className = 'tl-btn';
+    b.textContent = 'ここに入る';
+    if(!posSession.answered){ b.addEventListener('click', ()=>checkPosition(slotIdx)); }
+    else{ b.disabled = true; if(slotIdx === posSession.correctIdx) b.classList.add('chosen'); }
+    slot.appendChild(b);
+    wrap.appendChild(slot);
+  };
+  addSlot(0);
+  posSession.sorted.forEach((ev, i)=>{
+    const item = document.createElement('div');
+    item.className = 'tl-item' + (posSession.answered ? ' answered':'');
+    item.innerHTML = `<div class="stim-desc">${escapeHtml(ev.desc || ev.name)}</div><div class="reveal"><div class="yr">${escapeHtml(normalizeYearLabel(ev.year))}</div><div class="nm">${escapeHtml(ev.name)}</div></div>`;
+    wrap.appendChild(item);
+    addSlot(i+1);
+  });
+}
+function checkPosition(slotIdx){
+  posSession.answered = true;
+  const isCorrect = slotIdx === posSession.correctIdx;
+  if(isCorrect) posSession.score++;
+  document.getElementById('pos-target-box').classList.add('answered');
+  renderPositionTimeline();
+  updatePosHead();
+  const box = document.getElementById('pos-result');
+  box.classList.add('show');
+  box.classList.toggle('correct', isCorrect);
+  box.classList.toggle('wrong', !isCorrect);
+  box.innerHTML = `<div class="title">${isCorrect ? '🎉 正解！' : '❌ 不正解'}</div><div>「${escapeHtml(posSession.target.name)}」は<strong>${escapeHtml(normalizeYearLabel(posSession.target.year))}</strong>の出来事でした。</div>`;
+  document.getElementById('pos-next').classList.remove('hidden');
+}
+document.getElementById('pos-next').addEventListener('click', nextPosQuestion);
+function finishPosSession(){
+  showPosView('result');
+  const score = posSession.score, pct = Math.round((score/TOTAL_Q)*100);
+  document.getElementById('pos-final-era').textContent = `時代：${eraName(posSession.era)}`;
+  document.getElementById('pos-final-score').innerHTML = `${score}<span>/${TOTAL_Q}</span>`;
+  document.getElementById('pos-final-pct').textContent = `正答率 ${pct}%`;
+  document.getElementById('pos-final-msg').textContent = resultMsg(pct);
+}
+document.getElementById('pos-start').addEventListener('click', startPosSession);
+document.getElementById('pos-retry-same').addEventListener('click', startPosSession);
+document.getElementById('pos-change-era').addEventListener('click', ()=>{
+  renderPosEraGrid();
+  showPosView('setup');
+});
+document.getElementById('pos-quiz-restart').addEventListener('click', ()=>{
+  posSession = null;
+  renderPosEraGrid();
+  showPosView('setup');
+});
+
+/* =====================================================
+   FLASHCARD (no scoring, casual review)
+===================================================== */
+let flashDeck = [];
+let flashIdx = 0;
+let flashFlipped = false;
+let flashEra = 'all';
+
+function buildFlashDeck(){
+  flashDeck = shuffle(eventsInEra(flashEra));
+  flashIdx = 0;
+  flashFlipped = false;
+}
+function renderFlashCard(){
+  const area = document.getElementById('flash-area');
+  if(flashDeck.length === 0){
+    document.getElementById('flash-progress').textContent = '';
+    document.getElementById('flash-front').innerHTML = flashEra==='all'
+      ? '<div class="loading">表示できるカードがありません。<br>年表に出来事を登録してください。</div>'
+      : `<div class="loading">「${escapeHtml(eraName(flashEra))}」の出来事が登録されていません。<br>他の時代を選ぶか、年表に登録してください。</div>`;
+    document.getElementById('flash-back').classList.add('hidden');
+    document.getElementById('flash-front').classList.remove('hidden');
+    return;
+  }
+  const ev = flashDeck[flashIdx];
+  document.getElementById('flash-progress').textContent = `カード ${flashIdx+1} / ${flashDeck.length}`;
+  document.getElementById('flash-front').innerHTML = `<div class="fname">${escapeHtml(ev.desc || ev.name)}</div><div class="ftap">タップして年号・名前を確認</div>`;
+  document.getElementById('flash-back').innerHTML = `
+    <div class="byr">${escapeHtml(normalizeYearLabel(ev.year))}</div>
+    <div class="bnm">${escapeHtml(ev.name)}</div>
+    ${ev.desc ? `<div class="bds">${escapeHtml(ev.desc)}</div>` : ''}
+  `;
+  flashFlipped = false;
+  document.getElementById('flash-front').classList.remove('hidden');
+  document.getElementById('flash-back').classList.add('hidden');
+}
+function flipFlashCard(){
+  if(flashDeck.length === 0) return;
+  flashFlipped = !flashFlipped;
+  document.getElementById('flash-front').classList.toggle('hidden', flashFlipped);
+  document.getElementById('flash-back').classList.toggle('hidden', !flashFlipped);
+}
+document.getElementById('flash-card').addEventListener('click', flipFlashCard);
+document.getElementById('flash-flip').addEventListener('click', flipFlashCard);
+document.getElementById('flash-prev').addEventListener('click', ()=>{
+  if(flashDeck.length === 0) return;
+  flashIdx = (flashIdx - 1 + flashDeck.length) % flashDeck.length;
+  renderFlashCard();
+});
+document.getElementById('flash-next').addEventListener('click', ()=>{
+  if(flashDeck.length === 0) return;
+  flashIdx = (flashIdx + 1) % flashDeck.length;
+  renderFlashCard();
+});
+document.getElementById('flash-shuffle').addEventListener('click', ()=>{
+  buildFlashDeck();
+  renderFlashCard();
+});
+document.getElementById('flash-era-select').addEventListener('change', (e)=>{
+  flashEra = e.target.value;
+  buildFlashDeck();
+  renderFlashCard();
+});
+
+/* =====================================================
+   LIST + ADD + EDIT + DELETE
+===================================================== */
+let editingEvent = null;
+let pendingDeleteEvent = null;
+let addPanelOpen = false;
+
+document.getElementById('add-toggle-btn').addEventListener('click', ()=>{
+  addPanelOpen = !addPanelOpen;
+  editingEvent = null;
+  renderAddPanelSlot();
+});
+
+function renderAddPanelSlot(){
+  const slot = document.getElementById('add-panel-slot');
+  slot.innerHTML = '';
+  document.getElementById('add-toggle-btn').textContent = addPanelOpen ? '－ 閉じる' : '＋ 新しい年号を追加';
+  if(addPanelOpen) slot.appendChild(buildAddPanel());
+}
+
+function buildAddPanel(){
+  const box = document.createElement('div');
+  box.className = 'add-panel';
+  box.innerHTML = `
+    <div class="field">
+      <label>年号（西暦）</label>
+      <input type="text" class="a-year" placeholder="例：1874年／1874／4世紀ごろ／紀元前3世紀ごろ">
+      <div class="hint">「1874年」のような西暦のほか、「4世紀ごろ」「紀元前3世紀ごろ」のような世紀表記にも対応しています（例：6世紀ごろ→西暦500年代の最後に配置）。</div>
+    </div>
+    <div class="field"><label>出来事の名前</label><input type="text" class="a-name" placeholder="例：民撰議院設立建白書の提出"></div>
+    <div class="field"><label>出来事の詳しい説明（任意）</label><textarea class="a-desc" placeholder="例：板垣退助らが政府に国会開設を求めて提出した意見書。自由民権運動のきっかけとなった。"></textarea></div>
+    <div class="actions-row">
+      <button class="btn btn-primary btn-sm a-save">この年号を保存する</button>
+      <button class="btn btn-ghost btn-sm a-cancel">キャンセル</button>
+    </div>
+    <div class="save-msg" id="add-msg"></div>
+  `;
+  box.querySelector('.a-cancel').addEventListener('click', ()=>{ addPanelOpen = false; renderAddPanelSlot(); });
+  box.querySelector('.a-save').addEventListener('click', async ()=>{
+    const yearRaw = box.querySelector('.a-year').value.trim();
+    const name = box.querySelector('.a-name').value.trim();
+    const desc = box.querySelector('.a-desc').value.trim();
+    const msg = box.querySelector('#add-msg');
+    if(!yearRaw || !name){
+      msg.classList.remove('save-msg-warn');
+      msg.classList.add('show','save-msg-warn');
+      msg.textContent = '年号と名前は必須です。';
+      return;
+    }
+    const newEv = { year: normalizeYearLabel(yearRaw), name, desc, src:'user' };
+    EVENTS.push(newEv);
+    const saved = await saveEvents();
+    renderList();
+    msg.classList.remove('save-msg-warn');
+    if(saved){
+      msg.textContent = `✓ 保存しました（${normalizeYearLabel(newEv.year)} ${newEv.name}／現在${EVENTS.length}件登録中）。クイズに反映されます。`;
+    } else {
+      msg.classList.add('save-msg-warn');
+      msg.textContent = '⚠ この画面には反映されましたが、' + storageWarningText();
+    }
+    msg.classList.add('show');
+    box.querySelector('.a-year').value = '';
+    box.querySelector('.a-name').value = '';
+    box.querySelector('.a-desc').value = '';
+  });
+  return box;
+}
+
+function renderList(){
+  const q = document.getElementById('list-search').value.trim();
+  const all = sortedEvents().filter(e => !q || e.name.includes(q) || (e.desc||'').includes(q));
+  document.getElementById('list-count').textContent = `全${EVENTS.length}件中 ${all.length}件を表示`;
+  const wrap = document.getElementById('list-scroll');
+  wrap.innerHTML = '';
+  all.forEach(ev=>{
+    if(ev === editingEvent){ wrap.appendChild(buildEditPanel(ev)); return; }
+    if(ev === pendingDeleteEvent){ wrap.appendChild(buildDeleteConfirm(ev)); return; }
+    const row = document.createElement('div');
+    row.className = 'list-row';
+    row.innerHTML = `
+      <div class="yr">${escapeHtml(normalizeYearLabel(ev.year))}</div>
+      <div class="body">
+        <div class="nm">${escapeHtml(ev.name)}<span class="tag-era">${escapeHtml(eraOf(ev.year).name)}</span>${ev.src==='user' ? '<span class="tag-user">追加分</span>' : ''}</div>
+        <div class="ds">${escapeHtml(ev.desc||'')}</div>
+      </div>
+      <div class="row-btns">
+        <button class="btn btn-ghost btn-sm edit-btn">編集</button>
+        <button class="del-btn" title="削除">✕ 削除</button>
+      </div>
+    `;
+    row.querySelector('.edit-btn').addEventListener('click', ()=>{ editingEvent = ev; pendingDeleteEvent = null; addPanelOpen = false; renderAddPanelSlot(); renderList(); });
+    row.querySelector('.del-btn').addEventListener('click', ()=>{ pendingDeleteEvent = ev; editingEvent = null; renderList(); });
+    wrap.appendChild(row);
+  });
+  renderOrderEraGrid();
+  renderPosEraGrid();
+}
+
+function buildEditPanel(ev){
+  const box = document.createElement('div');
+  box.className = 'edit-panel';
+  const yearVal = normalizeYearLabel(ev.year).replace('年','');
+  box.innerHTML = `
+    <div class="field">
+      <label>年号（西暦）</label>
+      <input type="text" class="e-year" value="${escapeHtml(yearVal)}">
+      <div class="hint">「1874」のような西暦のほか、「4世紀ごろ」「紀元前3世紀ごろ」のような世紀表記にも対応しています。</div>
+    </div>
+    <div class="field"><label>出来事の名前</label><input type="text" class="e-name" value="${escapeHtml(ev.name)}"></div>
+    <div class="field"><label>出来事の詳しい説明</label><textarea class="e-desc">${escapeHtml(ev.desc||'')}</textarea></div>
+    <div class="actions-row">
+      <button class="btn btn-primary btn-sm e-save">保存する</button>
+      <button class="btn btn-ghost btn-sm e-cancel">キャンセル</button>
+    </div>
+    <div class="save-msg e-msg"></div>
+  `;
+  box.querySelector('.e-cancel').addEventListener('click', ()=>{ editingEvent = null; renderList(); });
+  box.querySelector('.e-save').addEventListener('click', async ()=>{
+    const yearRaw = box.querySelector('.e-year').value.trim();
+    const name = box.querySelector('.e-name').value.trim();
+    const desc = box.querySelector('.e-desc').value.trim();
+    const msg = box.querySelector('.e-msg');
+    if(!yearRaw || !name){
+      msg.classList.add('show','save-msg-warn');
+      msg.textContent = '年号と名前は必須です。';
+      return;
+    }
+    ev.year = normalizeYearLabel(yearRaw);
+    ev.name = name;
+    ev.desc = desc;
+    const saved = await saveEvents();
+    editingEvent = null;
+    renderList();
+    if(!saved){
+      // list has already re-rendered without this panel, so surface the warning
+      // via the add-panel-slot area instead of a blocked alert().
+      const slot = document.getElementById('add-panel-slot');
+      const warn = document.createElement('div');
+      warn.className = 'save-msg show save-msg-warn';
+      warn.textContent = '⚠ 変更は画面には反映されましたが、' + storageWarningText();
+      slot.prepend(warn);
+      setTimeout(()=>warn.remove(), 6000);
+    }
+  });
+  return box;
+}
+
+function buildDeleteConfirm(ev){
+  const box = document.createElement('div');
+  box.className = 'edit-panel';
+  box.innerHTML = `
+    <div style="font-size:13.5px;line-height:1.6;margin-bottom:12px;">
+      「<strong>${escapeHtml(ev.name)}</strong>」（${escapeHtml(normalizeYearLabel(ev.year))}）を年表から削除します。<br>この操作は元に戻せません。よろしいですか？
+    </div>
+    <div class="actions-row">
+      <button class="btn btn-shu btn-sm d-confirm">削除する</button>
+      <button class="btn btn-ghost btn-sm d-cancel">キャンセル</button>
+    </div>
+  `;
+  box.querySelector('.d-cancel').addEventListener('click', ()=>{ pendingDeleteEvent = null; renderList(); });
+  box.querySelector('.d-confirm').addEventListener('click', async ()=>{
+    EVENTS = EVENTS.filter(e2 => e2 !== ev);
+    pendingDeleteEvent = null;
+    const saved = await saveEvents();
+    renderList();
+    if(!saved){
+      const slot = document.getElementById('add-panel-slot');
+      const warn = document.createElement('div');
+      warn.className = 'save-msg show save-msg-warn';
+      warn.textContent = '⚠ 削除は画面には反映されましたが、' + storageWarningText();
+      slot.prepend(warn);
+      setTimeout(()=>warn.remove(), 6000);
+    }
+  });
+  return box;
+}
+document.getElementById('list-search').addEventListener('input', renderList);
+
+/* =====================================================
+   INIT
+===================================================== */
+(async function init(){
+  await loadEvents();
+  renderOrderEraGrid();
+  renderPosEraGrid();
+  renderList();
+  buildFlashDeck();
+  renderFlashCard();
+})();
+</script>
+</body>
+</html>
